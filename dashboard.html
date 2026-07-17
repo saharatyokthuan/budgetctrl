@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ภาพรวม · BUDGET//CTRL+</title>
+<link rel="stylesheet" href="css/style.css">
+<!-- PWA Meta -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BudgetCtrl">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('✅ SW registered:', reg))
+    .catch(err => console.log('❌ SW error:', err));
+}
+</script>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar-mount"></nav>
+  <main class="main">
+
+    <div class="receipt">
+      <h1>ยอดคงเหลือทั้งหมด</h1>
+      <div class="amount" id="balanceAmt">0.00</div>
+      <div class="sub" id="txCount">0 รายการ</div>
+    </div>
+
+    <div class="grid2">
+      <div class="stat"><div class="label">รายรับเดือนนี้</div><div class="val" id="mIncome" style="color:var(--income)">0.00</div></div>
+      <div class="stat"><div class="label">รายจ่ายเดือนนี้</div><div class="val" id="mExpense" style="color:var(--expense)">0.00</div></div>
+    </div>
+
+    <div class="card" id="alertsCard" style="margin-top:12px;display:none">
+      <h2>แจ้งเตือน</h2>
+      <div id="alertsList"></div>
+    </div>
+
+    <div class="card">
+      <h2>รายการล่าสุด</h2>
+      <div id="recentList"><div class="empty">ยังไม่มีรายการ</div></div>
+      <a href="index.html" class="btn secondary sm" style="margin-top:10px">ดูทั้งหมด</a>
+    </div>
+
+  </main>
+</div>
+<nav class="navbar" id="navbar-mount"></nav>
+
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script>DB.init();</script>
+<script src="js/nav.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

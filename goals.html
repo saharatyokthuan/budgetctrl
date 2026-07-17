@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เป้าหมายออม · BUDGET//CTRL+</title>
+<link rel="stylesheet" href="css/style.css">
+<!-- PWA Meta -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BudgetCtrl">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('✅ SW registered:', reg))
+    .catch(err => console.log('❌ SW error:', err));
+}
+</script>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar-mount"></nav>
+  <main class="main">
+
+    <div class="card">
+      <h2>เป้าหมายการออม</h2>
+      <div id="list"><div class="empty">ยังไม่มีเป้าหมาย</div></div>
+    </div>
+
+    <button class="btn" id="addBtn">+ ตั้งเป้าหมายใหม่</button>
+
+  </main>
+</div>
+<nav class="navbar" id="navbar-mount"></nav>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <span class="modal-close" id="modalClose">&times;</span>
+    <h3>ตั้งเป้าหมายการออม</h3>
+    <div class="field"><label>ชื่อเป้าหมาย</label><input type="text" id="fName" placeholder="เช่น ซื้อมอเตอร์ไซค์"></div>
+    <div class="field"><label>จำนวนเงินเป้าหมาย</label><input type="number" step="0.01" id="fTarget"></div>
+    <div class="field"><label>กำหนดวันที่ (ถ้ามี)</label><input type="date" id="fDeadline"></div>
+    <button class="btn" id="saveBtn">บันทึก</button>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="addMoneyBackdrop">
+  <div class="modal">
+    <span class="modal-close" id="addMoneyClose">&times;</span>
+    <h3>เติมเงินออม</h3>
+    <div class="field"><label>จำนวนเงิน</label><input type="number" step="0.01" id="addMoneyAmount"></div>
+    <button class="btn" id="addMoneySave">บันทึก</button>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script>DB.init();</script>
+<script src="js/nav.js"></script>
+<script src="js/goals.js"></script>
+</body>
+</html>

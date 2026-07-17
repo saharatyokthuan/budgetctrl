@@ -1,0 +1,30 @@
+{
+  "name": "BUDGET//CTRL+",
+  "short_name": "BudgetCtrl",
+  "description": "แอปบันทึกการเงิน หนี้สิน งบประมาณ เป้าหมายออม",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0F1419",
+  "theme_color": "#0F1419",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}

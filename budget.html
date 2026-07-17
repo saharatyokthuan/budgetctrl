@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>งบประมาณ · BUDGET//CTRL+</title>
+<link rel="stylesheet" href="css/style.css">
+<!-- PWA Meta -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BudgetCtrl">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('✅ SW registered:', reg))
+    .catch(err => console.log('❌ SW error:', err));
+}
+</script>
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar-mount"></nav>
+  <main class="main">
+
+    <div class="receipt">
+      <h1>เดือนนี้</h1>
+      <div class="sub" id="monthLabel">-</div>
+    </div>
+
+    <div class="card">
+      <h2>งบประมาณต่อหมวดหมู่</h2>
+      <div id="list"><div class="empty">ยังไม่ได้ตั้งงบประมาณ</div></div>
+    </div>
+
+    <button class="btn" id="addBtn">+ ตั้งงบประมาณหมวดหมู่ใหม่</button>
+
+  </main>
+</div>
+<nav class="navbar" id="navbar-mount"></nav>
+
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal">
+    <span class="modal-close" id="modalClose">&times;</span>
+    <h3>ตั้งงบประมาณ</h3>
+    <div class="field"><label>หมวดหมู่ (รายจ่าย)</label><select id="fCategory"></select></div>
+    <div class="field"><label>วงเงินต่อเดือน</label><input type="number" step="0.01" id="fLimit" placeholder="0.00"></div>
+    <button class="btn" id="saveBtn">บันทึก</button>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script>DB.init();</script>
+<script src="js/nav.js"></script>
+<script src="js/budget.js"></script>
+</body>
+</html>

@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ตั้งค่า · BUDGET//CTRL+</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="app">
+  <nav class="sidebar" id="sidebar-mount"></nav>
+  <main class="main">
+
+    <div class="card">
+      <h2>หมวดหมู่</h2>
+      <div class="tabs" id="catTypeTabs">
+        <button data-v="expense" class="active">รายจ่าย</button>
+        <button data-v="income">รายรับ</button>
+      </div>
+      <div id="catList"></div>
+      <div class="row" style="margin-top:10px">
+        <input type="text" id="newCatName" placeholder="ชื่อหมวดหมู่ใหม่">
+        <button class="btn sm" id="addCatBtn" style="width:auto">เพิ่ม</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>สำรอง / นำเข้าข้อมูล</h2>
+      <button class="btn secondary" id="backupBtn">ดาวน์โหลดไฟล์สำรอง (.json)</button>
+      <div class="field" style="margin-top:10px">
+        <label>นำเข้าไฟล์สำรอง</label>
+        <input type="file" id="importFile" accept="application/json">
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ซิงค์กับ Google Sheets</h2>
+      <div class="field">
+        <label>Apps Script Web App URL</label>
+        <input type="text" id="webhookUrl" placeholder="https://script.google.com/macros/s/.../exec">
+      </div>
+      <button class="btn secondary" id="syncBtn">ส่งข้อมูลไป Google Sheets</button>
+      <div style="font-size:11px;color:var(--text-dim);margin-top:8px">
+        ต้องตั้งค่า Google Apps Script ให้รับ POST แบบ JSON ไว้ก่อน จึงจะซิงค์ได้
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>ล้างข้อมูลทั้งหมด</h2>
+      <button class="btn danger" id="resetBtn">ล้างข้อมูลทั้งหมด</button>
+    </div>
+
+  </main>
+</div>
+<nav class="navbar" id="navbar-mount"></nav>
+
+<script src="js/utils.js"></script>
+<script src="js/db.js"></script>
+<script>DB.init();</script>
+<script src="js/nav.js"></script>
+<script src="js/settings.js"></script>
+</body>
+</html>
