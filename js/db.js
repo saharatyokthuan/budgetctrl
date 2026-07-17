@@ -22,10 +22,8 @@ const DB = {
         {id:Utils.uid(),name:'ที่พัก/หอพัก',type:'expense'},
         {id:Utils.uid(),name:'ของใช้ส่วนตัว',type:'expense'},
         {id:Utils.uid(),name:'อื่นๆ',type:'expense'},
-        {id:Utils.uid(),name:'ยืมเงินเข้า',type:'income'},
-        {id:Utils.uid(),name:'รับเงินคืน',type:'income'},
-        {id:Utils.uid(),name:'ให้ยืมเงิน',type:'expense'},
-        {id:Utils.uid(),name:'คืนหนี้',type:'expense'},
+        {id:Utils.uid(),name:'ยืม/คืน',type:'income'},
+        {id:Utils.uid(),name:'ยืม/คืน',type:'expense'},
       ]);
     }
     for(const k of ['tx','debts','budgets','recurring','goals']){
@@ -46,6 +44,13 @@ const DB = {
   },
   deleteTx(id){
     this._set(this.KEYS.tx, this._get(this.KEYS.tx,[]).filter(t=>t.id!==id));
+  },
+  updateTx(id, updates){
+    const list = this._get(this.KEYS.tx,[]);
+    const t = list.find(x=>x.id===id);
+    if(!t) return;
+    Object.assign(t, updates);
+    this._set(this.KEYS.tx,list);
   },
   balance(){
     return this.getTx().reduce((s,t)=> s + (t.type==='income'? t.amount : -t.amount), 0);
@@ -76,7 +81,7 @@ const DB = {
     this.addTx({
       type: d.kind==='owe' ? 'income' : 'expense',
       amount: d.amount,
-      category: d.kind==='owe' ? 'ยืมเงินเข้า' : 'ให้ยืมเงิน',
+      category: 'ยืม/คืน',
       note: (d.kind==='owe' ? 'ยืมจาก ' : 'ให้ยืม ') + d.person,
       date: Utils.todayISO(),
       debtId: id
@@ -95,7 +100,7 @@ const DB = {
     this.addTx({
       type: d.kind==='owe' ? 'expense' : 'income',
       amount,
-      category: d.kind==='owe' ? 'คืนหนี้' : 'รับเงินคืน',
+      category: 'ยืม/คืน',
       note: (d.kind==='owe' ? 'จ่ายคืน ' : 'รับคืนจาก ') + d.person,
       date: Utils.todayISO(),
       debtId: id

@@ -27,14 +27,14 @@
     if(!list.length){ listEl.innerHTML = '<div class="empty">ไม่พบรายการ</div>'; return; }
 
     listEl.innerHTML = list.map(t=>`
-      <div class="ledger-row" data-id="${t.id}">
+      <div class="ledger-row" data-id="${t.id}" style="cursor:pointer">
         <span class="dot ${t.type}"></span>
-        <span class="meta">
+        <span class="meta" data-open="${t.id}">
           <div class="cat">${Utils.escapeHtml(t.category)}</div>
           <div class="note">${Utils.fmtDate(t.date)}${t.note?' · '+Utils.escapeHtml(t.note):''}</div>
         </span>
         <span class="bal">${Utils.money(balMap[t.id])}</span>
-        <span class="amt ${t.type}">${t.type==='income'?'+':'-'}${Utils.money(t.amount)}</span>
+        <span class="amt ${t.type}" data-open="${t.id}">${t.type==='income'?'+':'-'}${Utils.money(t.amount)}</span>
         <span class="del" data-del="${t.id}">✕</span>
       </div>
     `).join('');
@@ -50,31 +50,34 @@
     filterType = e.target.dataset.v;
     render();
   });
+
   listEl.addEventListener('click', e=>{
-    const id = e.target.dataset.del;
-    if(id && confirm('ลบรายการนี้?')){ DB.deleteTx(id); render(); }
+    const delId = e.target.dataset.del;
+    const openId = e.target.closest('[data-open]')?.dataset.open;
+    if(delId && confirm('ลบรายการนี้?')){ DB.deleteTx(delId); render(); return; }
+    if(openId) openEdit(openId);
   });
 
-  // ---- Modal / add form ----
+  // ---- Modal state ----
   const backdrop = document.getElementById('modalBackdrop');
-  const openModal = ()=>{
-    document.getElementById('fDate').value = Utils.todayISO();
-    populateCategories('expense');
-    backdrop.classList.add('open');
-  };
-  const closeModal = ()=> backdrop.classList.remove('open');
-  document.getElementById('addBtn').addEventListener('click', openModal);
-  document.getElementById('modalClose').addEventListener('click', closeModal);
-  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) closeModal(); });
-
+  const modalTitle = document.getElementById('modalTitle');
+  const formTypeTabs = document.getElementById('formTypeTabs');
+  const debtFields = document.getElementById('debtFields');
+  const categoryField = document.getElementById('categoryField');
+  const dateField = document.getElementById('dateField');
   let formType = 'expense';
-  document.getElementById('formTypeTabs').addEventListener('click', e=>{
-    if(e.target.tagName!=='BUTTON') return;
-    [...e.currentTarget.children].forEach(b=>b.classList.remove('active'));
-    e.target.classList.add('active');
-    formType = e.target.dataset.v;
-    populateCategories(formType);
-  });
+  let debtKind = 'owe';
+  let editingId = null; // null = adding new, otherwise id of tx being edited
+
+  function setFormType(type){
+    formType = type;
+    [...formTypeTabs.children].forEach(b=>b.classList.toggle('active', b.dataset.v===type));
+    const isDebt = type==='debt';
+    debtFields.style.display = isDebt ? '' : 'none';
+    categoryField.style.display = isDebt ? 'none' : '';
+    dateField.style.display = isDebt ? 'none' : '';
+    if(!isDebt) populateCategories(type);
+  }
 
   function populateCategories(type){
     const sel = document.getElementById('fCategory');
@@ -83,18 +86,85 @@
       || '<option value="อื่นๆ">อื่นๆ</option>';
   }
 
+  function openAdd(){
+    editingId = null;
+    modalTitle.textContent = 'เพิ่มรายการ';
+    document.getElementById('saveBtn').textContent = 'บันทึก';
+    [...formTypeTabs.children].forEach(b=> b.style.display = '');
+    document.getElementById('fAmount').value='';
+    document.getElementById('fNote').value='';
+    document.getElementById('fPerson').value='';
+    document.getElementById('fDue').value='';
+    document.getElementById('fDate').value = Utils.todayISO();
+    setFormType('expense');
+    backdrop.classList.add('open');
+  }
+
+  function openEdit(id){
+    const t = DB.getTx().find(x=>x.id===id);
+    if(!t) return;
+    if(t.debtId){
+      Utils.toast('รายการนี้มาจากหน้าหนี้/ยืม-คืน แก้ไขได้ที่หน้านั้นแทน');
+      return;
+    }
+    editingId = id;
+    modalTitle.textContent = 'แก้ไขรายการ';
+    document.getElementById('saveBtn').textContent = 'บันทึกการแก้ไข';
+    // editing an existing plain transaction: hide the ยืม/คืน quick-entry tab
+    [...formTypeTabs.children].forEach(b=> b.style.display = b.dataset.v==='debt' ? 'none' : '');
+    setFormType(t.type);
+    document.getElementById('fAmount').value = t.amount;
+    document.getElementById('fDate').value = t.date;
+    document.getElementById('fNote').value = t.note || '';
+    document.getElementById('fCategory').value = t.category;
+    backdrop.classList.add('open');
+  }
+
+  const closeModal = ()=> backdrop.classList.remove('open');
+  document.getElementById('addBtn').addEventListener('click', openAdd);
+  document.getElementById('modalClose').addEventListener('click', closeModal);
+  backdrop.addEventListener('click', e=>{ if(e.target===backdrop) closeModal(); });
+
+  formTypeTabs.addEventListener('click', e=>{
+    if(e.target.tagName!=='BUTTON') return;
+    setFormType(e.target.dataset.v);
+  });
+  document.getElementById('debtKindTabs').addEventListener('click', e=>{
+    if(e.target.tagName!=='BUTTON') return;
+    [...e.currentTarget.children].forEach(b=>b.classList.remove('active'));
+    e.target.classList.add('active');
+    debtKind = e.target.dataset.v;
+  });
+
   document.getElementById('saveBtn').addEventListener('click', ()=>{
     const amount = parseFloat(document.getElementById('fAmount').value);
     if(!amount || amount<=0){ Utils.toast('กรอกจำนวนเงินให้ถูกต้อง'); return; }
-    DB.addTx({
+
+    if(formType==='debt'){
+      const person = document.getElementById('fPerson').value.trim();
+      if(!person){ Utils.toast('กรอกชื่อคน/ร้าน'); return; }
+      DB.addDebt({
+        kind: debtKind, person, amount,
+        dueDate: document.getElementById('fDue').value || null,
+        note: document.getElementById('fNote').value.trim()
+      });
+      closeModal();
+      render();
+      Utils.toast('บันทึกแล้ว (ดูรายละเอียดเพิ่มที่หน้าหนี้/ยืม-คืน)');
+      return;
+    }
+
+    const payload = {
       type: formType,
       amount,
       category: document.getElementById('fCategory').value || 'อื่นๆ',
       date: document.getElementById('fDate').value || Utils.todayISO(),
       note: document.getElementById('fNote').value.trim()
-    });
-    document.getElementById('fAmount').value='';
-    document.getElementById('fNote').value='';
+    };
+
+    if(editingId){ DB.updateTx(editingId, payload); }
+    else { DB.addTx(payload); }
+
     closeModal();
     render();
     Utils.toast('บันทึกแล้ว');

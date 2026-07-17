@@ -3,51 +3,64 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>งบประมาณ · BUDGET//CTRL+</title>
+<title>บันทึกรายการ · BUDGET//CTRL+</title>
 <link rel="stylesheet" href="css/style.css">
-<!-- PWA Meta -->
-<link rel="manifest" href="manifest.json">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="BudgetCtrl">
-<link rel="apple-touch-icon" href="icons/icon-192x192.png">
-
-<!-- Service Worker -->
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js')
-    .then(reg => console.log('✅ SW registered:', reg))
-    .catch(err => console.log('❌ SW error:', err));
-}
-</script>
 </head>
 <body>
 <div class="app">
   <nav class="sidebar" id="sidebar-mount"></nav>
   <main class="main">
 
-    <div class="receipt">
-      <h1>เดือนนี้</h1>
-      <div class="sub" id="monthLabel">-</div>
+    <div class="card">
+      <h2>ค้นหา / กรอง</h2>
+      <div class="field"><input type="text" id="q" placeholder="ค้นหาหมวดหมู่หรือโน้ต..."></div>
+      <div class="tabs" id="typeTabs">
+        <button data-v="all" class="active">ทั้งหมด</button>
+        <button data-v="income">รายรับ</button>
+        <button data-v="expense">รายจ่าย</button>
+      </div>
+      <div class="row">
+        <div class="field"><label>จากวันที่</label><input type="date" id="fromDate"></div>
+        <div class="field"><label>ถึงวันที่</label><input type="date" id="toDate"></div>
+      </div>
     </div>
 
     <div class="card">
-      <h2>งบประมาณต่อหมวดหมู่</h2>
-      <div id="list"><div class="empty">ยังไม่ได้ตั้งงบประมาณ</div></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+        <h2 style="margin:0">รายการ (เทปบัญชี)</h2>
+        <button class="btn secondary sm" id="exportBtn">ส่งออก .xlsx</button>
+      </div>
+      <div id="list"><div class="empty">ยังไม่มีรายการ</div></div>
     </div>
-
-    <button class="btn" id="addBtn">+ ตั้งงบประมาณหมวดหมู่ใหม่</button>
 
   </main>
 </div>
 <nav class="navbar" id="navbar-mount"></nav>
+<button class="fab" id="addBtn" aria-label="เพิ่มรายการ">+</button>
 
 <div class="modal-backdrop" id="modalBackdrop">
   <div class="modal">
     <span class="modal-close" id="modalClose">&times;</span>
-    <h3>ตั้งงบประมาณ</h3>
-    <div class="field"><label>หมวดหมู่ (รายจ่าย)</label><select id="fCategory"></select></div>
-    <div class="field"><label>วงเงินต่อเดือน</label><input type="number" step="0.01" id="fLimit" placeholder="0.00"></div>
+    <h3 id="modalTitle">เพิ่มรายการ</h3>
+    <div class="tabs" id="formTypeTabs">
+      <button data-v="expense" class="active">รายจ่าย</button>
+      <button data-v="income">รายรับ</button>
+      <button data-v="debt">ยืม/คืน</button>
+    </div>
+
+    <div id="debtFields" style="display:none">
+      <div class="tabs" id="debtKindTabs">
+        <button data-v="owe" class="active">ฉันเป็นหนี้ (ต้องจ่าย)</button>
+        <button data-v="lend">ให้คนอื่นยืม (ต้องได้คืน)</button>
+      </div>
+      <div class="field"><label>ชื่อคน/ร้าน</label><input type="text" id="fPerson" placeholder="เช่น พี่แดง, ร้านค้า"></div>
+      <div class="field"><label>วันครบกำหนด (ถ้ามี)</label><input type="date" id="fDue"></div>
+    </div>
+
+    <div class="field"><label>จำนวนเงิน</label><input type="number" step="0.01" id="fAmount" placeholder="0.00"></div>
+    <div class="field" id="categoryField"><label>หมวดหมู่</label><select id="fCategory"></select></div>
+    <div class="field" id="dateField"><label>วันที่</label><input type="date" id="fDate"></div>
+    <div class="field"><label>โน้ต (ถ้ามี)</label><input type="text" id="fNote"></div>
     <button class="btn" id="saveBtn">บันทึก</button>
   </div>
 </div>
@@ -56,6 +69,7 @@ if ('serviceWorker' in navigator) {
 <script src="js/db.js"></script>
 <script>DB.init();</script>
 <script src="js/nav.js"></script>
-<script src="js/budget.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="js/transactions.js"></script>
 </body>
 </html>
