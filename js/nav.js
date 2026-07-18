@@ -1,8 +1,8 @@
 // nav.js - renders sidebar (desktop) + bottom tab bar (mobile)
 (function(){
   const LINKS = [
-    {href:'index.html',      label:'บันทึกรายการ', ico:'≡'},
-    {href:'dashboard.html',  label:'ภาพรวม',      ico:'⌂'},
+    {href:'index.html',      label:'ภาพรวม',      ico:'⌂'},
+    {href:'transactions.html',label:'รายการ',      ico:'≡'},
     {href:'debts.html',      label:'หนี้/ยืม-คืน', ico:'⇄'},
     {href:'budget.html',     label:'งบประมาณ',    ico:'◔'},
     {href:'recurring.html',  label:'รายการประจำ', ico:'↻'},

@@ -22,8 +22,6 @@ const DB = {
         {id:Utils.uid(),name:'ที่พัก/หอพัก',type:'expense'},
         {id:Utils.uid(),name:'ของใช้ส่วนตัว',type:'expense'},
         {id:Utils.uid(),name:'อื่นๆ',type:'expense'},
-        {id:Utils.uid(),name:'ยืม/คืน',type:'income'},
-        {id:Utils.uid(),name:'ยืม/คืน',type:'expense'},
       ]);
     }
     for(const k of ['tx','debts','budgets','recurring','goals']){
@@ -44,13 +42,6 @@ const DB = {
   },
   deleteTx(id){
     this._set(this.KEYS.tx, this._get(this.KEYS.tx,[]).filter(t=>t.id!==id));
-  },
-  updateTx(id, updates){
-    const list = this._get(this.KEYS.tx,[]);
-    const t = list.find(x=>x.id===id);
-    if(!t) return;
-    Object.assign(t, updates);
-    this._set(this.KEYS.tx,list);
   },
   balance(){
     return this.getTx().reduce((s,t)=> s + (t.type==='income'? t.amount : -t.amount), 0);
@@ -74,18 +65,8 @@ const DB = {
   getDebts(){ return this._get(this.KEYS.debts,[]); },
   addDebt(d){
     const list = this._get(this.KEYS.debts,[]);
-    const id = Utils.uid();
-    list.push({id, remaining:d.amount, status:'pending', repayments:[], ...d});
+    list.push({id:Utils.uid(), remaining:d.amount, status:'pending', repayments:[], ...d});
     this._set(this.KEYS.debts,list);
-    // record the cash movement in the transactions ledger too
-    this.addTx({
-      type: d.kind==='owe' ? 'income' : 'expense',
-      amount: d.amount,
-      category: 'ยืม/คืน',
-      note: (d.kind==='owe' ? 'ยืมจาก ' : 'ให้ยืม ') + d.person,
-      date: Utils.todayISO(),
-      debtId: id
-    });
   },
   repayDebt(id, amount){
     const list = this._get(this.KEYS.debts,[]);
@@ -96,15 +77,6 @@ const DB = {
     d.repayments.push({date:Utils.todayISO(), amount});
     if(d.remaining<=0) d.status='paid';
     this._set(this.KEYS.debts,list);
-    // record the repayment in the transactions ledger too
-    this.addTx({
-      type: d.kind==='owe' ? 'expense' : 'income',
-      amount,
-      category: 'ยืม/คืน',
-      note: (d.kind==='owe' ? 'จ่ายคืน ' : 'รับคืนจาก ') + d.person,
-      date: Utils.todayISO(),
-      debtId: id
-    });
   },
   deleteDebt(id){
     this._set(this.KEYS.debts, this._get(this.KEYS.debts,[]).filter(d=>d.id!==id));
