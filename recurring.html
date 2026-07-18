@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>รายการประจำ · BUDGET//CTRL+</title>
 <link rel="stylesheet" href="css/style.css">
+<!-- PWA Meta -->
+<link rel="manifest" href="manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="BudgetCtrl">
+<link rel="apple-touch-icon" href="icons/icon-192x192.png">
+
+<!-- Service Worker -->
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js')
+    .then(reg => console.log('✅ SW registered:', reg))
+    .catch(err => console.log('❌ SW error:', err));
+}
+</script>
 </head>
 <body>
 <div class="app">
